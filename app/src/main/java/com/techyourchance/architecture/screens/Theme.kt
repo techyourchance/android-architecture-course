@@ -1,4 +1,4 @@
-package com.techyourchance.architecture
+package com.techyourchance.architecture.screens
 
 import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme

@@ -1,4 +1,4 @@
-package com.techyourchance.architecture
+package com.techyourchance.architecture.screens
 
 import android.os.Bundle
 import android.text.Html
@@ -69,6 +69,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.room.Room
+import com.techyourchance.architecture.BuildConfig
+import com.techyourchance.architecture.FavoriteQuestionDao
+import com.techyourchance.architecture.MyRoomDatabase
+import com.techyourchance.architecture.R
+import com.techyourchance.architecture.StackoverflowApi
 import com.techyourchance.architecture.question.FavoriteQuestion
 import com.techyourchance.architecture.question.QuestionSchema
 import com.techyourchance.architecture.question.QuestionWithBodySchema

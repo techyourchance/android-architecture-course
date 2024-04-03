@@ -19,7 +19,7 @@
         tools:targetApi="tiramisu"
         >
         <activity
-            android:name=".MainActivity"
+            android:name=".screens.MainActivity"
             android:exported="true"
             android:theme="@style/MyTheme"
             >
