@@ -1,4 +1,4 @@
-package com.techyourchance.architecture
+package com.techyourchance.architecture.question
 
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass

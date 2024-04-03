@@ -1,5 +1,7 @@
 package com.techyourchance.architecture
 
+import com.techyourchance.architecture.question.QuestionDetailsSchema
+import com.techyourchance.architecture.question.QuestionsListSchema
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
