@@ -1,0 +1,11 @@
+package com.techyourchance.architecture
+
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "favorite")
+data class FavoriteQuestion(
+    @ColumnInfo(name = "id") @PrimaryKey val id: String,
+    @ColumnInfo(name = "title") val title: String,
+)
