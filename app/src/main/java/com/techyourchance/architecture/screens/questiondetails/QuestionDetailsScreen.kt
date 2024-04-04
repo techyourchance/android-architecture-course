@@ -33,7 +33,7 @@ fun QuestionDetailsScreen(
     questionId: String,
     stackoverflowApi: StackoverflowApi,
     favoriteQuestionDao: FavoriteQuestionDao,
-    navController: NavHostController,
+    onError: () -> Unit,
 ) {
     var questionDetails by remember { mutableStateOf<QuestionWithBodySchema?>(null) }
     var isError by remember { mutableStateOf(false) }
@@ -85,14 +85,10 @@ fun QuestionDetailsScreen(
             text = {
                 Text("Ooops, something went wrong")
             },
-            onDismissRequest = {
-                navController.popBackStack()
-            },
+            onDismissRequest = onError,
             confirmButton = {
                 Button(
-                    onClick = {
-                        navController.popBackStack()
-                    }
+                    onClick = onError
                 ) {
                     Text("OK")
                 }
