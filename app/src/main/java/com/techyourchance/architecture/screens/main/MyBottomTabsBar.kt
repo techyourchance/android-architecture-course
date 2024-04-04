@@ -16,47 +16,20 @@ import com.techyourchance.architecture.screens.Route
 
 
 @Composable
-fun MyBottomTabsBar(parentController: NavController) {
-
-    val bottomTabsToRootRoutes = remember() {
-        mapOf(
-            BottomTab.Main to Route.MainTab,
-            BottomTab.Favorites to Route.FavoritesTab,
-        )
-    }
-
-    val navBackStackEntry by parentController.currentBackStackEntryAsState()
-
-    val currentRoute = remember(navBackStackEntry) {
-        when(val currentRouteName = navBackStackEntry?.destination?.route) {
-            Route.QuestionsListScreen.routeName -> Route.QuestionsListScreen
-            Route.QuestionDetailsScreen.routeName -> Route.QuestionDetailsScreen
-            Route.FavoriteQuestionsScreen.routeName -> Route.FavoriteQuestionsScreen
-            Route.MainTab.routeName -> Route.MainTab
-            Route.FavoritesTab.routeName -> Route.FavoritesTab
-            null -> null
-            else -> throw RuntimeException("unsupported route: $currentRouteName")
-        }
-    }
+fun MyBottomTabsBar(
+    bottomTabs: List<BottomTab>,
+    selectedBottomTab: BottomTab?,
+    onBottomTabSelected: (BottomTab) -> Unit,
+) {
 
     NavigationBar {
-        bottomTabsToRootRoutes.keys.forEachIndexed { _, bottomTab ->
+        bottomTabs.forEachIndexed { _, bottomTab ->
             NavigationBarItem(
                 alwaysShowLabel = true,
                 icon = { Icon(bottomTab.icon!!, contentDescription = bottomTab.title) },
                 label = { Text(bottomTab.title) },
-                selected = currentRoute?.bottomTab == bottomTab,
-                onClick = {
-                    parentController.navigate(bottomTabsToRootRoutes[bottomTab]!!.routeName) {
-                        parentController.graph.startDestinationRoute?.let { startRoute ->
-                            popUpTo(startRoute) {
-                                saveState = true
-                            }
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                },
+                selected = selectedBottomTab == bottomTab,
+                onClick = { onBottomTabSelected(bottomTab) },
                 colors = NavigationBarItemDefaults.colors(
                     indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
                 )

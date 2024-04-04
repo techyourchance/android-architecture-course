@@ -10,21 +10,29 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.techyourchance.architecture.common.database.FavoriteQuestionDao
 import com.techyourchance.architecture.common.networking.StackoverflowApi
+import com.techyourchance.architecture.question.FavoriteQuestion
+import com.techyourchance.architecture.screens.BottomTab
 import com.techyourchance.architecture.screens.Route
 import com.techyourchance.architecture.screens.favoritequestions.FavoriteQuestionsScreen
 import com.techyourchance.architecture.screens.questiondetails.QuestionDetailsScreen
 import com.techyourchance.architecture.screens.questionslist.QuestionsListScreen
+import kotlinx.coroutines.launch
 
 @Composable
 fun MainScreen(
@@ -32,32 +40,121 @@ fun MainScreen(
     stackoverflowApi: StackoverflowApi
 ) {
 
-    val parentNavController = rememberNavController()
+    val scope = rememberCoroutineScope()
 
-    val currentNavController = remember {
-        mutableStateOf(parentNavController)
+    val parentNavControllerState = remember {
+        mutableStateOf<NavHostController?>(null)
+    }
+
+    val currentNavControllerState = remember {
+        mutableStateOf(parentNavControllerState.value)
+    }
+
+    val currentNavController = remember(currentNavControllerState.value) {
+        currentNavControllerState.value
+    }
+
+    val backstackEntry = currentNavController?.currentBackStackEntryAsState()?.value
+
+    val isRootRoute = remember(backstackEntry) {
+        backstackEntry?.destination?.route == Route.QuestionsListScreen.routeName
+    }
+
+    val isShowFavoriteButton = remember(backstackEntry) {
+        backstackEntry?.destination?.route == Route.QuestionDetailsScreen.routeName
+    }
+
+    val questionIdAndTitle = remember(backstackEntry) {
+        if (isShowFavoriteButton) {
+            Pair(
+                backstackEntry?.arguments?.getString("questionId")!!,
+                backstackEntry?.arguments?.getString("questionTitle")!!,
+            )
+        } else {
+            Pair("", "")
+        }
+    }
+
+    var isFavoriteQuestion by remember { mutableStateOf(false) }
+
+    if (isShowFavoriteButton && questionIdAndTitle.first.isNotEmpty()) {
+        // Since collectAsState can't be conditionally called, use LaunchedEffect for conditional logic
+        LaunchedEffect(questionIdAndTitle) {
+            favoriteQuestionDao.observeById(questionIdAndTitle.first).collect { favoriteQuestion ->
+                isFavoriteQuestion = favoriteQuestion != null
+            }
+        }
+    }
+
+    val currentRoute = remember(currentNavController) {
+        when(val currentRouteName = currentNavController?.currentBackStackEntry?.destination?.route) {
+            Route.QuestionsListScreen.routeName -> Route.QuestionsListScreen
+            Route.QuestionDetailsScreen.routeName -> Route.QuestionDetailsScreen
+            Route.FavoriteQuestionsScreen.routeName -> Route.FavoriteQuestionsScreen
+            Route.MainTab.routeName -> Route.MainTab
+            Route.FavoritesTab.routeName -> Route.FavoritesTab
+            null -> null
+            else -> throw RuntimeException("unsupported route: $currentRouteName")
+        }
+    }
+
+    val bottomTabsToRootRoutes = remember() {
+        mapOf(
+            BottomTab.Main to Route.MainTab,
+            BottomTab.Favorites to Route.FavoritesTab,
+        )
     }
 
     Scaffold(
         topBar = {
             MyTopAppBar(
-                favoriteQuestionDao = favoriteQuestionDao,
-                currentNavController = currentNavController.value,
-                parentNavController = parentNavController,
+                isRootRoute = isRootRoute,
+                isShowFavoriteButton = isShowFavoriteButton,
+                isFavoriteQuestion = isFavoriteQuestion,
+                onBackClicked = {
+                    currentNavController?.let {
+                        if (!it.popBackStack()) {
+                            parentNavControllerState.value?.popBackStack()
+                        }
+                    }
+                },
+                onFavoriteClicked = {
+                    scope.launch {
+                        if (isFavoriteQuestion) {
+                            favoriteQuestionDao.delete(questionIdAndTitle.first)
+                        } else {
+                            favoriteQuestionDao.upsert(FavoriteQuestion(questionIdAndTitle.first, questionIdAndTitle.second))
+                        }
+                    }
+                },
             )
         },
         bottomBar = {
             BottomAppBar(modifier = Modifier) {
-                MyBottomTabsBar(parentController = parentNavController)
+                MyBottomTabsBar(
+                    bottomTabs = bottomTabsToRootRoutes.keys.toList(),
+                    selectedBottomTab = currentRoute?.bottomTab,
+                    onBottomTabSelected = {
+                        parentNavControllerState.value?.navigate(bottomTabsToRootRoutes[it]!!.routeName) {
+                            parentNavControllerState.value?.graph?.startDestinationRoute?.let { startRoute ->
+                                popUpTo(startRoute) {
+                                    saveState = true
+                                }
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                )
             }
         },
         content = { padding ->
             MainContent(
                 padding = padding,
-                parentNavController = parentNavController,
                 stackoverflowApi = stackoverflowApi,
                 favoriteQuestionDao = favoriteQuestionDao,
-                currentNavController = currentNavController,
+                parentNavControllerState = parentNavControllerState,
+                currentNavControllerState = currentNavControllerState,
             )
         }
     )
@@ -67,11 +164,15 @@ fun MainScreen(
 @Composable
 private fun MainContent(
     padding: PaddingValues,
-    parentNavController: NavHostController,
     stackoverflowApi: StackoverflowApi,
     favoriteQuestionDao: FavoriteQuestionDao,
-    currentNavController: MutableState<NavHostController>,
+    parentNavControllerState: MutableState<NavHostController?>,
+    currentNavControllerState: MutableState<NavHostController?>,
 ) {
+
+    val parentNavController = rememberNavController()
+    parentNavControllerState.value = parentNavController
+
     Surface(
         modifier = Modifier
             .padding(padding)
@@ -86,7 +187,7 @@ private fun MainContent(
         ) {
             composable(route = Route.MainTab.routeName) {
                 val nestedNavController = rememberNavController()
-                currentNavController.value = nestedNavController
+                currentNavControllerState.value = nestedNavController
                 NavHost(navController = nestedNavController, startDestination = Route.QuestionsListScreen.routeName) {
                     composable(route = Route.QuestionsListScreen.routeName) {
                         QuestionsListScreen(
@@ -114,7 +215,7 @@ private fun MainContent(
 
             composable(route = Route.FavoritesTab.routeName) {
                 val nestedNavController = rememberNavController()
-                currentNavController.value = nestedNavController
+                currentNavControllerState.value = nestedNavController
                 NavHost(navController = nestedNavController, startDestination = Route.FavoriteQuestionsScreen.routeName) {
                     composable(route = Route.FavoriteQuestionsScreen.routeName) {
                         FavoriteQuestionsScreen(
