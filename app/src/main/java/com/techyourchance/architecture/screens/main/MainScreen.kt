@@ -10,17 +10,22 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.techyourchance.architecture.common.database.FavoriteQuestionDao
 import com.techyourchance.architecture.common.networking.StackoverflowApi
+import com.techyourchance.architecture.screens.BottomTab
 import com.techyourchance.architecture.screens.Route
 import com.techyourchance.architecture.screens.favoritequestions.FavoriteQuestionsScreen
 import com.techyourchance.architecture.screens.questiondetails.QuestionDetailsScreen
@@ -38,17 +43,98 @@ fun MainScreen(
         mutableStateOf(parentNavController)
     }
 
+
+    val navBackStackEntry by parentNavController.currentBackStackEntryAsState()
+
+    val currentRoute = remember(navBackStackEntry) {
+        when(val currentRouteName = navBackStackEntry?.destination?.route) {
+            Route.QuestionsListScreen.routeName -> Route.QuestionsListScreen
+            Route.QuestionDetailsScreen.routeName -> Route.QuestionDetailsScreen
+            Route.FavoriteQuestionsScreen.routeName -> Route.FavoriteQuestionsScreen
+            Route.MainTab.routeName -> Route.MainTab
+            Route.FavoritesTab.routeName -> Route.FavoritesTab
+            null -> null
+            else -> throw RuntimeException("unsupported route: $currentRouteName")
+        }
+    }
+
+    val currentBottomTab = remember (currentRoute) {
+        currentRoute?.bottomTab
+    }
+
+    val bottomTabsToRootRoutes = remember() {
+        mapOf(
+            BottomTab.Main to Route.MainTab,
+            BottomTab.Favorites to Route.FavoritesTab,
+        )
+    }
+
+    val backstackEntryState = currentNavController.value.currentBackStackEntryAsState()
+
+
+    val isRootRoute = remember(backstackEntryState.value) {
+        backstackEntryState.value?.destination?.route == Route.QuestionsListScreen.routeName
+    }
+
+    val isShowFavoriteButton = remember(backstackEntryState.value) {
+        backstackEntryState.value?.destination?.route == Route.QuestionDetailsScreen.routeName
+    }
+
+    val questionIdAndTitle = remember(backstackEntryState.value) {
+        if (isShowFavoriteButton) {
+            Pair(
+                backstackEntryState.value?.arguments?.getString("questionId")!!,
+                backstackEntryState.value?.arguments?.getString("questionTitle")!!,
+            )
+        } else {
+            Pair("", "")
+        }
+    }
+
+    var isFavoriteQuestion by remember { mutableStateOf(false) }
+
+    if (isShowFavoriteButton && questionIdAndTitle.first.isNotEmpty()) {
+        // Since collectAsState can't be conditionally called, use LaunchedEffect for conditional logic
+        LaunchedEffect(questionIdAndTitle) {
+            favoriteQuestionDao.observeById(questionIdAndTitle.first).collect { favoriteQuestion ->
+                isFavoriteQuestion = favoriteQuestion != null
+            }
+        }
+    }
+
+
     Scaffold(
         topBar = {
             MyTopAppBar(
                 favoriteQuestionDao = favoriteQuestionDao,
-                currentNavController = currentNavController.value,
-                parentNavController = parentNavController,
+                isRootRoute = isRootRoute,
+                isShowFavoriteButton = isShowFavoriteButton,
+                isFavoriteQuestion = isFavoriteQuestion,
+                questionIdAndTitle = questionIdAndTitle,
+                onBackClicked = {
+                    if (!currentNavController.value.popBackStack()) {
+                        parentNavController.popBackStack()
+                    }
+                }
             )
         },
         bottomBar = {
             BottomAppBar(modifier = Modifier) {
-                MyBottomTabsBar(parentController = parentNavController)
+                MyBottomTabsBar(
+                    bottomTabs = bottomTabsToRootRoutes.keys.toList(),
+                    currentBottomTab = currentBottomTab,
+                    onTabClicked = { bottomTab ->
+                        parentNavController.navigate(bottomTabsToRootRoutes[bottomTab]!!.routeName) {
+                            parentNavController.graph.startDestinationRoute?.let { startRoute ->
+                                popUpTo(startRoute) {
+                                    saveState = true
+                                }
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                )
             }
         },
         content = { padding ->
@@ -105,7 +191,9 @@ private fun MainScreenContent(
                             questionId = backStackEntry.arguments?.getString("questionId")!!,
                             stackoverflowApi = stackoverflowApi,
                             favoriteQuestionDao = favoriteQuestionDao,
-                            navController = nestedNavController,
+                            onError = {
+                                nestedNavController.popBackStack()
+                            }
                         )
                     }
                 }
@@ -118,7 +206,13 @@ private fun MainScreenContent(
                     composable(route = Route.FavoriteQuestionsScreen.routeName) {
                         FavoriteQuestionsScreen(
                             favoriteQuestionDao = favoriteQuestionDao,
-                            navController = nestedNavController
+                            onQuestionClicked = { favoriteQuestionId, favoriteQuestionTitle ->
+                                nestedNavController.navigate(
+                                    Route.QuestionDetailsScreen.routeName
+                                        .replace("{questionId}", favoriteQuestionId)
+                                        .replace("{questionTitle}", favoriteQuestionTitle)
+                                )
+                            }
                         )
                     }
                     composable(route = Route.QuestionDetailsScreen.routeName) { backStackEntry ->
@@ -126,7 +220,9 @@ private fun MainScreenContent(
                             questionId = backStackEntry.arguments?.getString("questionId")!!,
                             stackoverflowApi = stackoverflowApi,
                             favoriteQuestionDao = favoriteQuestionDao,
-                            navController = nestedNavController
+                            onError = {
+                                nestedNavController.popBackStack()
+                            }
                         )
                     }
                 }
