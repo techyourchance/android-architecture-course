@@ -3,10 +3,6 @@ package com.techyourchance.architecture.screens
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.Home
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.room.Room
 import com.techyourchance.architecture.BuildConfig
 import com.techyourchance.architecture.common.database.MyRoomDatabase
@@ -69,15 +65,3 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-sealed class Route(val routeName: String, val bottomTab: BottomTab) {
-    data object MainTab: Route("mainTab", BottomTab.Main)
-    data object FavoritesTab: Route("favoritesTab", BottomTab.Favorites)
-    data object QuestionsListScreen: Route("questionsList", BottomTab.Main)
-    data object QuestionDetailsScreen: Route("questionDetails/{questionId}/{questionTitle}", BottomTab.Main)
-    data object FavoriteQuestionsScreen: Route("favorites", BottomTab.Favorites)
-}
-
-sealed class BottomTab(val icon: ImageVector?, var title: String) {
-    data object Main : BottomTab(Icons.Rounded.Home, "Home")
-    data object Favorites : BottomTab(Icons.Rounded.Favorite, "Favorites")
-}
