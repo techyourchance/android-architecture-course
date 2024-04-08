@@ -1,5 +1,7 @@
 package com.techyourchance.architecture.screens
 
+import com.techyourchance.architecture.common.base64.Base64EncodeDecode.encodeToBase64
+
 sealed class Route(val routeName: String) {
     data object MainTab: Route("mainTab")
     data object FavoritesTab: Route("favoritesTab")
@@ -12,7 +14,7 @@ sealed class Route(val routeName: String) {
         override val navCommand: String
             get() = routeName
                 .replace("{questionId}", questionId)
-                .replace("{questionTitle}", questionTitle)
+                .replace("{questionTitle}", questionTitle.encodeToBase64())
     }
 
     data object FavoriteQuestionsScreen: Route("favorites")

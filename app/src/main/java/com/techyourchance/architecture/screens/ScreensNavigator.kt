@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.compose.runtime.remember
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import com.techyourchance.architecture.common.base64.Base64EncodeDecode.decodeFromBase64
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -57,7 +58,7 @@ class ScreensNavigator {
                         val args = backStackEntry.arguments
                         Route.QuestionDetailsScreen(
                             args?.getString("questionId")!!,
-                            args?.getString("questionTitle")!!
+                            args?.getString("questionTitle")!!.decodeFromBase64()
                         )
                     }
                     Route.FavoriteQuestionsScreen.routeName -> Route.FavoriteQuestionsScreen
