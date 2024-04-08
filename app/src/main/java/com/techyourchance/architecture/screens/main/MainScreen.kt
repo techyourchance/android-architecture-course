@@ -28,6 +28,7 @@ import com.techyourchance.architecture.screens.Route
 import com.techyourchance.architecture.screens.ScreensNavigator
 import com.techyourchance.architecture.screens.favoritequestions.FavoriteQuestionsScreen
 import com.techyourchance.architecture.screens.questiondetails.QuestionDetailsScreen
+import com.techyourchance.architecture.screens.questionslist.QuestionsListPresenter
 import com.techyourchance.architecture.screens.questionslist.QuestionsListScreen
 import kotlinx.coroutines.flow.map
 
@@ -123,6 +124,9 @@ private fun MainScreenContent(
             .padding(padding)
             .padding(horizontal = 12.dp),
     ) {
+        val presenter = remember {
+            QuestionsListPresenter()
+        }
         NavHost(
             modifier = Modifier.fillMaxSize(),
             navController = parentNavController,
@@ -136,7 +140,7 @@ private fun MainScreenContent(
                 NavHost(navController = mainNestedNavController, startDestination = Route.QuestionsListScreen.routeName) {
                     composable(route = Route.QuestionsListScreen.routeName) {
                         QuestionsListScreen(
-                            stackoverflowApi = stackoverflowApi,
+                            presenter = presenter,
                             onQuestionClicked = { clickedQuestionId, clickedQuestionTitle ->
                                 screensNavigator.toRoute(Route.QuestionDetailsScreen(clickedQuestionId, clickedQuestionTitle))
                             },
