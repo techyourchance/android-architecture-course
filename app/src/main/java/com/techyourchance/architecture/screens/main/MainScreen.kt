@@ -23,9 +23,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.techyourchance.architecture.common.database.FavoriteQuestionDao
 import com.techyourchance.architecture.common.networking.StackoverflowApi
-import com.techyourchance.architecture.question.FavoriteQuestion
 import com.techyourchance.architecture.screens.Route
 import com.techyourchance.architecture.screens.ScreensNavigator
+import com.techyourchance.architecture.screens.favoritequestions.FavoriteQuestionsPresenter
 import com.techyourchance.architecture.screens.favoritequestions.FavoriteQuestionsScreen
 import com.techyourchance.architecture.screens.questiondetails.QuestionDetailsScreen
 import com.techyourchance.architecture.screens.questionslist.QuestionsListPresenter
@@ -124,8 +124,11 @@ private fun MainScreenContent(
             .padding(padding)
             .padding(horizontal = 12.dp),
     ) {
-        val presenter = remember {
+        val questionsListPresenter = remember {
             QuestionsListPresenter()
+        }
+        val favoriteQuestionPresenter = remember {
+            FavoriteQuestionsPresenter(favoriteQuestionDao)
         }
         NavHost(
             modifier = Modifier.fillMaxSize(),
@@ -140,7 +143,7 @@ private fun MainScreenContent(
                 NavHost(navController = mainNestedNavController, startDestination = Route.QuestionsListScreen.routeName) {
                     composable(route = Route.QuestionsListScreen.routeName) {
                         QuestionsListScreen(
-                            presenter = presenter,
+                            presenter = questionsListPresenter,
                             onQuestionClicked = { clickedQuestionId, clickedQuestionTitle ->
                                 screensNavigator.toRoute(Route.QuestionDetailsScreen(clickedQuestionId, clickedQuestionTitle))
                             },
@@ -168,7 +171,7 @@ private fun MainScreenContent(
                 NavHost(navController = favoritesNestedNavController, startDestination = Route.FavoriteQuestionsScreen.routeName) {
                     composable(route = Route.FavoriteQuestionsScreen.routeName) {
                         FavoriteQuestionsScreen(
-                            favoriteQuestionDao = favoriteQuestionDao,
+                            presenter = favoriteQuestionPresenter,
                             onQuestionClicked = { favoriteQuestionId, favoriteQuestionTitle ->
                                 screensNavigator.toRoute(Route.QuestionDetailsScreen(favoriteQuestionId, favoriteQuestionTitle))
                             }
