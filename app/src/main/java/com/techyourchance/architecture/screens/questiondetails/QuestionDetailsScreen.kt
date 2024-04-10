@@ -32,56 +32,46 @@ import com.techyourchance.architecture.question.QuestionWithBodySchema
 @Composable
 fun QuestionDetailsScreen(
     questionId: String,
-    stackoverflowApi: StackoverflowApi,
-    favoriteQuestionDao: FavoriteQuestionDao,
+    presenter: QuestionDetailsPresenter,
     onError: () -> Unit,
 ) {
-    var questionDetails by remember { mutableStateOf<QuestionWithBodySchema?>(null) }
-    var isError by remember { mutableStateOf(false) }
+    val questionDetailsResult = presenter.questionDetails.collectAsState().value
 
     LaunchedEffect(questionId) {
-        try {
-            questionDetails = stackoverflowApi.fetchQuestionDetails(questionId)!!.questions[0]
-        } catch (e: Exception) {
-            isError = true
-        }
+        presenter.fetchQuestionDetails(questionId)
     }
-
-    val isFavorite by favoriteQuestionDao.observeById(questionId).collectAsState(initial = null)
 
     val scrollState = rememberScrollState()
 
-    if (questionDetails != null) {
+    if (questionDetailsResult is QuestionDetailsPresenter.QuestionDetailsResult.Success) {
         Column(
             modifier = Modifier
                 .verticalScroll(scrollState),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            questionDetails?.let {
 
-                Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-                val spannedTitle: Spanned = Html.fromHtml(it.title, Html.FROM_HTML_MODE_LEGACY)
-                Text(
-                    text = spannedTitle.toString(),
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        fontWeight = FontWeight.Bold
-                    )
+            val spannedTitle: Spanned = Html.fromHtml(questionDetailsResult.questionDetails.title, Html.FROM_HTML_MODE_LEGACY)
+            Text(
+                text = spannedTitle.toString(),
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Bold
                 )
+            )
 
-                Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-                val spannedBody: Spanned = Html.fromHtml(it.body, Html.FROM_HTML_MODE_LEGACY)
-                Text(
-                    text = spannedBody.toString(),
-                    style = MaterialTheme.typography.bodyLarge
-                )
-            }
+            val spannedBody: Spanned = Html.fromHtml(questionDetailsResult.questionDetails.body, Html.FROM_HTML_MODE_LEGACY)
+            Text(
+                text = spannedBody.toString(),
+                style = MaterialTheme.typography.bodyLarge
+            )
         }
     }
 
-    if (isError) {
+    if (questionDetailsResult is QuestionDetailsPresenter.QuestionDetailsResult.Error) {
         AlertDialog(
             text = {
                 Text("Ooops, something went wrong")

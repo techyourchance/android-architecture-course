@@ -27,6 +27,7 @@ import com.techyourchance.architecture.screens.Route
 import com.techyourchance.architecture.screens.ScreensNavigator
 import com.techyourchance.architecture.screens.favoritequestions.FavoriteQuestionsPresenter
 import com.techyourchance.architecture.screens.favoritequestions.FavoriteQuestionsScreen
+import com.techyourchance.architecture.screens.questiondetails.QuestionDetailsPresenter
 import com.techyourchance.architecture.screens.questiondetails.QuestionDetailsScreen
 import com.techyourchance.architecture.screens.questionslist.QuestionsListPresenter
 import com.techyourchance.architecture.screens.questionslist.QuestionsListScreen
@@ -130,6 +131,12 @@ private fun MainScreenContent(
         val favoriteQuestionPresenter = remember {
             FavoriteQuestionsPresenter(favoriteQuestionDao)
         }
+        val questionDetailsPresenter1 = remember {
+            QuestionDetailsPresenter(stackoverflowApi, favoriteQuestionDao)
+        }
+        val questionDetailsPresenter2 = remember {
+            QuestionDetailsPresenter(stackoverflowApi, favoriteQuestionDao)
+        }
         NavHost(
             modifier = Modifier.fillMaxSize(),
             navController = parentNavController,
@@ -155,8 +162,7 @@ private fun MainScreenContent(
                         }
                         QuestionDetailsScreen(
                             questionId = questionId,
-                            stackoverflowApi = stackoverflowApi,
-                            favoriteQuestionDao = favoriteQuestionDao,
+                            presenter = questionDetailsPresenter1,
                             onError = {
                                 screensNavigator.navigateBack()
                             }
@@ -183,8 +189,7 @@ private fun MainScreenContent(
                         }
                         QuestionDetailsScreen(
                             questionId = questionId,
-                            stackoverflowApi = stackoverflowApi,
-                            favoriteQuestionDao = favoriteQuestionDao,
+                            presenter = questionDetailsPresenter2,
                             onError = {
                                 screensNavigator.navigateBack()
                             }
