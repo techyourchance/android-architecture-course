@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -35,12 +36,10 @@ class QuestionsListPresenter {
         retrofit.create(StackoverflowApi::class.java)
     }
 
-    private val scope = CoroutineScope(Dispatchers.Main.immediate)
-
     val lastActiveQuestions = MutableStateFlow<List<QuestionSchema>>(emptyList())
 
-    fun fetchLastActiveQuestions() {
-        scope.launch {
+    suspend fun fetchLastActiveQuestions() {
+        withContext(Dispatchers.Main.immediate) {
             val questions = stackoverflowApi.fetchLastActiveQuestions(20)!!.questions
             lastActiveQuestions.value = questions
         }
