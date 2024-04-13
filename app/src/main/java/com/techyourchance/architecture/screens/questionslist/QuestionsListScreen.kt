@@ -9,29 +9,24 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.techyourchance.architecture.common.networking.StackoverflowApi
-import com.techyourchance.architecture.question.QuestionSchema
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.techyourchance.architecture.screens.common.composables.QuestionItem
 
 
 @Composable
 fun QuestionsListScreen(
-    presenter: QuestionsListPresenter,
+    viewModel: QuestionsListViewModel = viewModel(),
     onQuestionClicked: (String, String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
 
-    val questions = presenter.lastActiveQuestions.collectAsState()
+    val questions = viewModel.lastActiveQuestions.collectAsState()
 
     LaunchedEffect(Unit) {
         if (questions.value.isEmpty()) {
-            presenter.fetchLastActiveQuestions()
+            viewModel.fetchLastActiveQuestions()
         }
     }
 

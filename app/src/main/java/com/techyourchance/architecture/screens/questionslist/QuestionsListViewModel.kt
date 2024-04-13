@@ -1,19 +1,19 @@
 package com.techyourchance.architecture.screens.questionslist
 
+import android.util.Log
+import androidx.lifecycle.ViewModel
 import com.techyourchance.architecture.BuildConfig
 import com.techyourchance.architecture.common.networking.StackoverflowApi
 import com.techyourchance.architecture.question.QuestionSchema
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
-class QuestionsListPresenter {
+class QuestionsListViewModel: ViewModel() {
 
     private val retrofit by lazy {
         val httpClient = OkHttpClient.Builder().run {
@@ -45,5 +45,8 @@ class QuestionsListPresenter {
         }
     }
 
-
+    override fun onCleared() {
+        super.onCleared()
+        Log.i("QuestionsListViewModel", "onCleared()")
+    }
 }
