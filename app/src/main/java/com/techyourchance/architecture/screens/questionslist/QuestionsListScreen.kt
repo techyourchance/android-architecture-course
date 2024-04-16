@@ -38,7 +38,7 @@ fun QuestionsListScreen(
 
     if (state.isRefreshing) {
         LaunchedEffect(Unit) {
-            viewModel.fetchLastActiveQuestions()
+            viewModel.fetchLastActiveQuestions(forceUpdate = true)
             state.endRefresh()
         }
     }

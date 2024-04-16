@@ -16,9 +16,12 @@ class QuestionsListViewModel: ViewModel() {
 
     suspend fun fetchLastActiveQuestions(forceUpdate: Boolean = false) {
         withContext(Dispatchers.Main.immediate) {
-            lastActiveQuestions.value = fetchQuestionsListUseCase.fetchLastActiveQuestions()
+            if (forceUpdate || lastActiveQuestions.value.isEmpty()) {
+                lastActiveQuestions.value = fetchQuestionsListUseCase.fetchLastActiveQuestions()
+            }
         }
     }
+
     override fun onCleared() {
         super.onCleared()
         Log.i("QuestionsListViewModel", "onCleared()")
