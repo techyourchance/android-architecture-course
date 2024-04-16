@@ -38,15 +38,28 @@ class QuestionsListViewModel: ViewModel() {
 
     val lastActiveQuestions = MutableStateFlow<List<QuestionSchema>>(emptyList())
 
-    suspend fun fetchLastActiveQuestions() {
+    private var lastNetworkRequestNano = 0L
+
+    suspend fun fetchLastActiveQuestions(forceUpdate: Boolean = false) {
         withContext(Dispatchers.Main.immediate) {
-            val questions = stackoverflowApi.fetchLastActiveQuestions(20)!!.questions
-            lastActiveQuestions.value = questions
+            if (forceUpdate || hasEnoughTimePassed()) {
+                lastNetworkRequestNano = System.nanoTime()
+                val questions = stackoverflowApi.fetchLastActiveQuestions(20)!!.questions
+                lastActiveQuestions.value = questions
+            }
         }
+    }
+
+    private fun hasEnoughTimePassed(): Boolean {
+        return System.nanoTime() - lastNetworkRequestNano > THROTTLE_TIMEOUT_MS * 1_000_000
     }
 
     override fun onCleared() {
         super.onCleared()
         Log.i("QuestionsListViewModel", "onCleared()")
+    }
+
+    companion object {
+        const val THROTTLE_TIMEOUT_MS = 5000L
     }
 }
