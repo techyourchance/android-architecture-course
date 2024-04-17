@@ -19,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 
@@ -35,7 +34,7 @@ fun QuestionDetailsScreen(
     val questionDetailsResult = viewModel.questionDetails.collectAsState().value
 
     LaunchedEffect(questionId) {
-        viewModel.fetchQuestionDetails(questionId)
+        viewModel.observeQuestionDetails(questionId)
     }
 
     val scrollState = rememberScrollState()
