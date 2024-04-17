@@ -14,7 +14,7 @@ class QuestionDetailsViewModel(
 
     sealed class QuestionDetailsResult {
         data object None: QuestionDetailsResult()
-        data class Success(val questionDetails: QuestionWithBody, val isFavorite: Boolean): QuestionDetailsResult()
+        data class Success(val questionDetails: QuestionWithBody): QuestionDetailsResult()
         data object Error: QuestionDetailsResult()
     }
 
@@ -25,7 +25,7 @@ class QuestionDetailsViewModel(
            observeQuestionDetailsUseCase.observeQuestionDetails(questionId).collect { useCaseResult ->
                val result = when (useCaseResult) {
                    is ObserveQuestionDetailsUseCase.QuestionDetailsResult.Success -> {
-                       QuestionDetailsResult.Success(useCaseResult.questionDetails, useCaseResult.isFavorite)
+                       QuestionDetailsResult.Success(useCaseResult.questionDetails)
                    }
                    is ObserveQuestionDetailsUseCase.QuestionDetailsResult.Error -> {
                        QuestionDetailsResult.Error
