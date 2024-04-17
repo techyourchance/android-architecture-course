@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.room.Room
 import com.techyourchance.architecture.BuildConfig
 import com.techyourchance.architecture.common.database.MyRoomDatabase
-import com.techyourchance.architecture.common.networking.StackoverflowApi
+import com.techyourchance.architecture.networking.StackoverflowApi
 import com.techyourchance.architecture.screens.main.MainScreen
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor

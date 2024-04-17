@@ -1,7 +1,7 @@
 package com.techyourchance.architecture.question
 
 import com.techyourchance.architecture.BuildConfig
-import com.techyourchance.architecture.common.networking.StackoverflowApi
+import com.techyourchance.architecture.networking.StackoverflowApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
@@ -34,13 +34,18 @@ class FetchQuestionsListUseCase {
 
     private var lastNetworkRequestNano = 0L
 
-    private var questions: List<QuestionSchema> = emptyList()
+    private var questions: List<Question> = emptyList()
 
-    suspend fun fetchLastActiveQuestions(): List<QuestionSchema> {
+    suspend fun fetchLastActiveQuestions(): List<Question> {
         return withContext(Dispatchers.IO) {
             if (hasEnoughTimePassed()) {
                 lastNetworkRequestNano = System.nanoTime()
-                questions = stackoverflowApi.fetchLastActiveQuestions(20)!!.questions
+                questions = stackoverflowApi.fetchLastActiveQuestions(20)!!.questions.map { questionSchema ->
+                    Question(
+                        questionSchema.id,
+                        questionSchema.title
+                    )
+                }
                 questions
             } else {
                 questions
