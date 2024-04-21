@@ -1,14 +1,14 @@
 package com.techyourchance.architecture.screens.favoritequestions
 
 import androidx.lifecycle.ViewModel
-import com.techyourchance.architecture.common.database.FavoriteQuestionDao
 import com.techyourchance.architecture.question.ObserveFavoriteQuestionsUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class FavoriteQuestionsViewModel(
-    private val favoriteQuestionDao: FavoriteQuestionDao,
+@HiltViewModel
+class FavoriteQuestionsViewModel @Inject constructor(
+    private val observeFavoriteQuestionsUseCase: ObserveFavoriteQuestionsUseCase,
 ): ViewModel() {
-
-    private val observeFavoriteQuestionsUseCase = ObserveFavoriteQuestionsUseCase(favoriteQuestionDao)
 
     val favoriteQuestions = observeFavoriteQuestionsUseCase.observeFavorites()
 }

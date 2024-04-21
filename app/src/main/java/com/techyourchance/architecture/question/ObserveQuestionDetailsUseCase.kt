@@ -8,8 +8,9 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class ObserveQuestionDetailsUseCase(
+class ObserveQuestionDetailsUseCase @Inject constructor(
     private val stackoverflowApi: StackoverflowApi,
     private val favoriteQuestionDao: FavoriteQuestionDao,
 ) {

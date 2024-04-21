@@ -4,11 +4,14 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.techyourchance.architecture.question.ObserveQuestionDetailsUseCase
 import com.techyourchance.architecture.question.QuestionWithBody
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class QuestionDetailsViewModel(
+@HiltViewModel
+class QuestionDetailsViewModel @Inject constructor(
     private val observeQuestionDetailsUseCase: ObserveQuestionDetailsUseCase,
 ): ViewModel() {
 

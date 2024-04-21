@@ -18,19 +18,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.techyourchance.architecture.common.database.FavoriteQuestionDao
 import com.techyourchance.architecture.networking.StackoverflowApi
-import com.techyourchance.architecture.question.ObserveQuestionDetailsUseCase
 import com.techyourchance.architecture.screens.Route
 import com.techyourchance.architecture.screens.ScreensNavigator
-import com.techyourchance.architecture.screens.favoritequestions.FavoriteQuestionsViewModel
 import com.techyourchance.architecture.screens.favoritequestions.FavoriteQuestionsScreen
-import com.techyourchance.architecture.screens.questiondetails.QuestionDetailsViewModel
 import com.techyourchance.architecture.screens.questiondetails.QuestionDetailsScreen
 import com.techyourchance.architecture.screens.questionslist.QuestionsListScreen
 import kotlinx.coroutines.flow.map
@@ -123,25 +118,6 @@ private fun MainScreenContent(
     val parentNavController = rememberNavController()
     screensNavigator.setParentNavController(parentNavController)
 
-
-    val viewModelFactory = object: ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return when {
-                modelClass.isAssignableFrom(QuestionDetailsViewModel::class.java) -> {
-                    val observeQuestionDetailsUseCase = ObserveQuestionDetailsUseCase(
-                        stackoverflowApi, favoriteQuestionDao
-                    )
-                    QuestionDetailsViewModel(observeQuestionDetailsUseCase) as T
-                }
-                modelClass.isAssignableFrom(FavoriteQuestionsViewModel::class.java) -> {
-                    FavoriteQuestionsViewModel(favoriteQuestionDao) as T
-                }
-                else -> super.create(modelClass)
-            }
-        }
-    }
-
     Surface(
         modifier = Modifier
             .padding(padding)
@@ -170,7 +146,6 @@ private fun MainScreenContent(
                             (screensNavigator.currentRoute.value as Route.QuestionDetailsScreen).questionId
                         }
                         QuestionDetailsScreen(
-                            viewModelFactory = viewModelFactory,
                             questionId = questionId,
                             onError = {
                                 screensNavigator.navigateBack()
@@ -186,7 +161,6 @@ private fun MainScreenContent(
                 NavHost(navController = favoritesNestedNavController, startDestination = Route.FavoriteQuestionsScreen.routeName) {
                     composable(route = Route.FavoriteQuestionsScreen.routeName) {
                         FavoriteQuestionsScreen(
-                            viewModelFactory = viewModelFactory,
                             onQuestionClicked = { favoriteQuestionId, favoriteQuestionTitle ->
                                 screensNavigator.toRoute(Route.QuestionDetailsScreen(favoriteQuestionId, favoriteQuestionTitle))
                             }
@@ -197,7 +171,6 @@ private fun MainScreenContent(
                             (screensNavigator.currentRoute.value as Route.QuestionDetailsScreen).questionId
                         }
                         QuestionDetailsScreen(
-                            viewModelFactory = viewModelFactory,
                             questionId = questionId,
                             onError = {
                                 screensNavigator.navigateBack()

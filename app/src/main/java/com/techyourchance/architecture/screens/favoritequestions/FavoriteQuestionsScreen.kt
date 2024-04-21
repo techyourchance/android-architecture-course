@@ -14,15 +14,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.techyourchance.architecture.screens.common.composables.QuestionItem
 
 
 @Composable
 fun FavoriteQuestionsScreen(
-    viewModelFactory: ViewModelProvider.Factory,
-    viewModel: FavoriteQuestionsViewModel = viewModel(factory = viewModelFactory),
+    viewModel: FavoriteQuestionsViewModel = hiltViewModel(),
     onQuestionClicked: (String, String) -> Unit,
 ) {
 

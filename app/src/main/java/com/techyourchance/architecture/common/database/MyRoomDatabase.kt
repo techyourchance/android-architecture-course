@@ -10,7 +10,7 @@ import com.techyourchance.architecture.question.FavoriteQuestion
     ],
     version = 1
 )
-internal abstract class MyRoomDatabase : RoomDatabase() {
+abstract class MyRoomDatabase : RoomDatabase() {
 
     abstract val favoriteQuestionDao: FavoriteQuestionDao
 }
