@@ -13,28 +13,22 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.techyourchance.architecture.R
-import com.techyourchance.architecture.common.database.FavoriteQuestionDao
-import com.techyourchance.architecture.question.FavoriteQuestion
-import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MyTopAppBar(
-    favoriteQuestionDao: FavoriteQuestionDao,
     isRootRoute: Boolean,
     isFavoriteQuestion: Boolean,
     isShowFavoriteButton: Boolean,
     questionIdAndTitle: Pair<String, String>,
+    onToggleFavoriteClicked: () -> Unit,
     onBackClicked: () -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
-
     CenterAlignedTopAppBar(
         title = {
             Row (
@@ -65,15 +59,7 @@ fun MyTopAppBar(
         actions = {
             if (isShowFavoriteButton) {
                 IconButton(
-                    onClick = {
-                        scope.launch {
-                            if (isFavoriteQuestion) {
-                                favoriteQuestionDao.delete(questionIdAndTitle.first)
-                            } else {
-                                favoriteQuestionDao.upsert(FavoriteQuestion(questionIdAndTitle.first, questionIdAndTitle.second))
-                            }
-                        }
-                    }
+                    onClick = onToggleFavoriteClicked
                 ) {
                     Icon(
                         imageVector = if (isFavoriteQuestion) {

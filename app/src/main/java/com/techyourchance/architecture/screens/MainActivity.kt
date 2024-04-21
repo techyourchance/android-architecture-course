@@ -13,26 +13,11 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    @Inject lateinit var myRoomDatabase: MyRoomDatabase
-    @Inject lateinit var retrofit: Retrofit
-
-
-    private val stackoverflowApi by lazy {
-        retrofit.create(StackoverflowApi::class.java)
-    }
-
-    private val favoriteQuestionDao by lazy {
-        myRoomDatabase.favoriteQuestionDao
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MyTheme {
-                MainScreen(
-                    stackoverflowApi = stackoverflowApi,
-                    favoriteQuestionDao = favoriteQuestionDao,
-                )
+                MainScreen()
             }
         }
     }
