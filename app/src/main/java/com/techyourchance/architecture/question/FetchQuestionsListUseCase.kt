@@ -1,36 +1,13 @@
 package com.techyourchance.architecture.question
 
-import com.techyourchance.architecture.BuildConfig
 import com.techyourchance.architecture.networking.StackoverflowApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
+import javax.inject.Inject
 
-class FetchQuestionsListUseCase {
-
-    private val retrofit by lazy {
-        val httpClient = OkHttpClient.Builder().run {
-            addInterceptor(HttpLoggingInterceptor().apply {
-                if (BuildConfig.DEBUG) {
-                    level = HttpLoggingInterceptor.Level.BODY
-                }
-            })
-            build()
-        }
-
-        Retrofit.Builder()
-            .baseUrl("http://api.stackexchange.com/2.3/")
-            .addConverterFactory(MoshiConverterFactory.create())
-            .client(httpClient)
-            .build()
-    }
-
-    private val stackoverflowApi by lazy {
-        retrofit.create(StackoverflowApi::class.java)
-    }
+class FetchQuestionsListUseCase @Inject constructor(
+    private val stackoverflowApi: StackoverflowApi
+) {
 
     private var lastNetworkRequestNano = 0L
 

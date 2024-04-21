@@ -17,14 +17,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.techyourchance.architecture.screens.common.composables.QuestionItem
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuestionsListScreen(
-    viewModel: QuestionsListViewModel = viewModel(),
+    viewModel: QuestionsListViewModel = hiltViewModel(),
     onQuestionClicked: (String, String) -> Unit,
 ) {
 

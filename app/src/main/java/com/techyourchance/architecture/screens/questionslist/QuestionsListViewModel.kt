@@ -4,13 +4,17 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.techyourchance.architecture.question.FetchQuestionsListUseCase
 import com.techyourchance.architecture.question.Question
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
-class QuestionsListViewModel: ViewModel() {
 
-    private val fetchQuestionsListUseCase = FetchQuestionsListUseCase()
+@HiltViewModel
+class QuestionsListViewModel @Inject constructor(
+    private val fetchQuestionsListUseCase: FetchQuestionsListUseCase
+): ViewModel() {
 
     val lastActiveQuestions = MutableStateFlow<List<Question>>(emptyList())
 
