@@ -1,6 +1,7 @@
-package com.techyourchance.architecture.question
+package com.techyourchance.architecture.question.usecases
 
 import com.techyourchance.architecture.common.database.FavoriteQuestionDao
+import com.techyourchance.architecture.question.FavoriteQuestion
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject

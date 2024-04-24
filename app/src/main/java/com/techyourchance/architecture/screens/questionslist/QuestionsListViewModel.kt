@@ -2,7 +2,7 @@ package com.techyourchance.architecture.screens.questionslist
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.techyourchance.architecture.question.FetchQuestionsListUseCase
+import com.techyourchance.architecture.question.usecases.FetchQuestionsListUseCase
 import com.techyourchance.architecture.question.Question
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers

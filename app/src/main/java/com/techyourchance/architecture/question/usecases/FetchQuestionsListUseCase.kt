@@ -1,6 +1,7 @@
-package com.techyourchance.architecture.question
+package com.techyourchance.architecture.question.usecases
 
 import com.techyourchance.architecture.networking.StackoverflowApi
+import com.techyourchance.architecture.question.Question
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
